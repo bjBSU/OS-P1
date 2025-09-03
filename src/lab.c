@@ -2,41 +2,114 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int add(int a, int b) {
-    return a + b;
+//example of using FreeFunc:
+//FreeFunc my_free = free_int;
+//my_free(some_pointer); // Calls free_int(some_pointer)
+typedef struct Node{
+    void *data;
+    struct Node *next;
+    struct Node *prev;
+}Node;
+
+//is this the right idea for List struct?
+struct List {
+    Node *SENTINEL;
+    size_t size;
+    ListType type;
+};
+
+/**
+ * AI usage: AI use
+ * @brief Create a new list of the specified type.
+ * @param type The type of list to create (e.g., LIST_LINKED_SENTINEL).
+ * @return Pointer to the newly created list, or NULL on failure.
+ */
+List *list_create(ListType type) {
+    List *list = malloc(sizeof(List));
+    if (list == NULL) {
+        return false; // Memory allocation failed
+    }
+    Node *sentinel = malloc(sizeof(Node));
+    if(sentinel == NULL) {
+        free(list);
+        return false; // Memory allocation failed
+    }
+    sentinel->next = sentinel;
+    sentinel->prev = sentinel;
+    list->SENTINEL = sentinel;
+    list->type = type;
+    list->size = 0;
+    return list;
 }
 
-int subtract(int a, int b) {
-    return a - b;
+void *list_destroy(List *list, FreeFunc free_func) {
+
+  //check if the list exists 
+  if(list == NULL){
+    return false;
+  }
+  Node *first = list->SENTINEL->next;
+  while(first != list->SENTINEL){
+    Node *next = first->next;
+    free_func(first->data);
+    free(first);
+    first = next;
+  }
+  free(list->SENTINEL);
+  free(list);
 }
 
-char *get_greeting(const char *restrict name)
-{
-  if (name == NULL)
-  {
-    return NULL;
+bool list_append(List *list, void *data){
+  if(list == NULL){
+    return false;
+  }
+  Node *newNode = malloc(sizeof(Node));
+  if(newNode == NULL){
+    return false;
+  }
+  newNode->data = data;
+
+  Node *currentLast = malloc(sizeof(Node));
+  if(currentLast == NULL){
+    return false;
+  }
+  currentLast = list->SENTINEL->prev;
+  currentLast->next = newNode;
+  newNode->next = list->SENTINEL;
+  list->SENTINEL->prev = newNode;
+  list->size++;
+  return true;
+}
+
+bool list_insert(List *list, size_t index, void *data){
+  if(list == NULL){
+    return false;
+  }
+  Node *newNode = malloc(sizeof(Node));
+  if(newNode == NULL){
+    return false;
+  }
+  newNode->data = data;
+
+  Node *current = malloc(sizeof(Node));
+  if(current == NULL){
+    return false;
   }
 
-  // Allocate memory for the greeting message
-  int length = snprintf(NULL, 0, "Hello, %s!", name);
-  if (length < 0) // GCOVR_EXCL_START
-  {
-    return NULL; // snprintf failed
-  } // GCOVR_EXCL_STOP
+  current = list->SENTINEL->next;
 
-  //Casting is safe here because we know length is non-negative
-  size_t alloc_size = (size_t) length + 1; // +1 for the null terminator
-  char *greeting = malloc( alloc_size);
+  for(size_t i = 0; i<index; i++){
+    current = current->next;
+  }
 
+  newNode->next = current;
+  newNode->prev = current->prev;
+  current->prev->next = newNode;
+  current->prev = newNode;
+  list->size++;
+  return true;
+}
 
-  if (greeting == NULL) // GCOVR_EXCL_START
-  {
-    return NULL; // Memory allocation failed
-  }  // GCOVR_EXCL_STOP
-
-
-  // Create the greeting message
-  snprintf(greeting, alloc_size, "Hello, %s!", name);
-
-  return greeting;
+void *list_remove(List *list, size_t index){
+  
 }
