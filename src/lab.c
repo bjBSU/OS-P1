@@ -2,16 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//example of using FreeFunc:
-//FreeFunc my_free = free_int;
-//my_free(some_pointer); // Calls free_int(some_pointer)
+/**
+ * Constructs the node struct.
+ * AI use: Assisted by AI
+ */
 typedef struct Node{
     void *data;
     struct Node *next;
     struct Node *prev;
 }Node;
 
-//is this the right idea for List struct?
+/**
+ * Constructs the list struct
+ * AI use: No AI
+ */
 struct List {
     Node *SENTINEL;
     size_t size;
@@ -19,10 +23,8 @@ struct List {
 };
 
 /**
- * AI usage: AI use
- * @brief Create a new list of the specified type.
- * @param type The type of list to create (e.g., LIST_LINKED_SENTINEL).
- * @return Pointer to the newly created list, or NULL on failure.
+ * Creates a list and sets the Sentinel node.
+ * AI usage: written by AI
  */
 List *list_create(ListType type) {
     List *list = malloc(sizeof(List));
@@ -42,16 +44,18 @@ List *list_create(ListType type) {
     return list;
 }
 
-void *list_destroy(List *list, FreeFunc free_func) {
-
-  //check if the list exists 
-  if(list == NULL){
-    return false;
-  }
+/**
+ * Destroys a list and sets everything free.
+ * AI use: Assisted by AI
+ */
+void list_destroy(List *list, FreeFunc free_func) {
   Node *first = list->SENTINEL->next;
   while(first != list->SENTINEL){
     Node *next = first->next;
-    free_func(first->data);
+    if(free_func != NULL && first->data != NULL){
+      free_func(first->data);
+    }
+  
     free(first);
     first = next;
   }
@@ -59,6 +63,11 @@ void *list_destroy(List *list, FreeFunc free_func) {
   free(list);
 }
 
+/**
+ * Adds a new node to the end of a list.
+ * Returns true if successful and updates the length of the list.
+ * AI use: Assisted by AI
+ */
 bool list_append(List *list, void *data){
   if(list == NULL){
     return false;
@@ -81,6 +90,11 @@ bool list_append(List *list, void *data){
   return true;
 }
 
+/**
+ * Inserts a node into a list at a specific index. 
+ * Returns true if the index exists.
+ * AI use: No AI
+ */
 bool list_insert(List *list, size_t index, void *data){
   if(list == NULL){
     return false;
@@ -98,8 +112,12 @@ bool list_insert(List *list, size_t index, void *data){
 
   current = list->SENTINEL->next;
 
-  for(size_t i = 0; i<index; i++){
-    current = current->next;
+  if(index >= list->size){
+    return false;
+  }else{
+    for(size_t i = 0; i<index; i++){
+        current = current->next;
+      }
   }
 
   newNode->next = current;
@@ -110,6 +128,88 @@ bool list_insert(List *list, size_t index, void *data){
   return true;
 }
 
+/**
+ * Removes a specific node in a list based on index.
+ * AI use: No AI
+ */
 void *list_remove(List *list, size_t index){
-  
+  if(list == NULL){
+    return false;
+  }
+
+  Node *current = malloc(sizeof(Node));
+  if(current == NULL){
+    return false;
+  }
+
+  current = list->SENTINEL->next;
+
+  if(index >= list->size){
+    return NULL;
+  }else{
+    for(size_t i = 0; i<index; i++){
+        current = current->next;
+      }
+  }
+
+  current->next->prev = current->prev;
+  current->prev->next = current->next;
+  list->size--;
+  return current;
 }
+
+/**
+ * Gets a specific node in the list based on index.
+ * AI use: No AI
+ */
+void *list_get(const List *list, size_t index){
+  if(list == NULL){
+    return false;
+  }
+
+  Node *current = malloc(sizeof(Node));
+  if(current == NULL){
+    return false;
+  }
+
+  current = list->SENTINEL->next;
+
+  if(index >= list->size){
+    return NULL;
+  }else{
+    for(size_t i = 0; i<index; i++){
+        current = current->next;
+      }
+      return current;
+  }
+}
+
+/**
+ * Returns the size of the list if not null.
+ * AI use: No AI
+ */
+size_t list_size(const List *list){
+  if(list == NULL){
+    return false;
+  }
+
+  return list->size;
+}
+
+/**
+ * Checks to see if the list is empty and returns true if it is.
+ * AI use: No AI
+ */
+bool list_is_empty(const List *list){
+  if(list == NULL){
+    return false;
+  }
+
+  if(list->size > 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+

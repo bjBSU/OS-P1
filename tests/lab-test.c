@@ -12,37 +12,38 @@ void tearDown(void) {
   printf("Tearing down tests...\n");
 }
 
-void test_add(void) {
-  TEST_ASSERT_EQUAL(8, add(5, 3));
-  TEST_ASSERT_EQUAL(-2, add(-5, 3));
-  TEST_ASSERT_EQUAL(0, add(0, 0));
+void test_list_basic(void) {
+    List *list = list_create(LIST_LINKED_SENTINEL);
+    TEST_ASSERT_NOT_NULL(list);
+    TEST_ASSERT_TRUE(list_is_empty(list));
+    TEST_ASSERT_EQUAL(0, list_size(list));
+
+    int *val1 = malloc(sizeof(int));
+    int *val2 = malloc(sizeof(int));
+    *val1 = 42;
+    *val2 = 99;
+
+    TEST_ASSERT_TRUE(list_append(list, val1));
+    TEST_ASSERT_FALSE(list_is_empty(list));
+    TEST_ASSERT_EQUAL(1, list_size(list));
+    TEST_ASSERT_EQUAL_PTR(val1, list_get(list, 0));
+
+    TEST_ASSERT_TRUE(list_insert(list, 0, val2));
+    TEST_ASSERT_EQUAL(2, list_size(list));
+    TEST_ASSERT_EQUAL_PTR(val2, list_get(list, 0));
+    TEST_ASSERT_EQUAL_PTR(val1, list_get(list, 1));
+
+    int *removed = list_remove(list, 0);
+    TEST_ASSERT_EQUAL_PTR(val2, removed);
+    free(removed);
+    TEST_ASSERT_EQUAL(1, list_size(list));
+
+    list_destroy(list, free);
 }
 
-void test_subtract(void) {
-  TEST_ASSERT_EQUAL(2, subtract(5, 3));
-  TEST_ASSERT_EQUAL(-8, subtract(-5, 3));
-  TEST_ASSERT_EQUAL(0, subtract(0, 0));
-}
-
-void test_get_greeting(void) {
-  char *greeting = get_greeting("Alice");
-  TEST_ASSERT_NOT_NULL(greeting);
-  TEST_ASSERT_EQUAL_STRING("Hello, Alice!", greeting);
-  free(greeting); // Free the allocated memory for the greeting
-
-  greeting = get_greeting(NULL);
-  TEST_ASSERT_NULL(greeting);
-
-  greeting = get_greeting("");
-  TEST_ASSERT_NOT_NULL(greeting);
-  TEST_ASSERT_EQUAL_STRING("Hello, !", greeting);
-  free(greeting);
-}
 
 int main(void) {
   UNITY_BEGIN();
-  RUN_TEST(test_get_greeting);
-  RUN_TEST(test_add);
-  RUN_TEST(test_subtract);
+  RUN_TEST(test_list_basic);
   return UNITY_END();
 }
