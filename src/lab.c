@@ -29,13 +29,15 @@ struct List {
 List *list_create(ListType type) {
     List *list = malloc(sizeof(List));
     if (list == NULL) {
-        return false; // Memory allocation failed
+        return NULL; // Memory allocation failed
     }
+
     Node *sentinel = malloc(sizeof(Node));
     if(sentinel == NULL) {
         free(list);
         return false; // Memory allocation failed
     }
+
     sentinel->next = sentinel;
     sentinel->prev = sentinel;
     list->SENTINEL = sentinel;
@@ -49,6 +51,9 @@ List *list_create(ListType type) {
  * AI use: Assisted by AI
  */
 void list_destroy(List *list, FreeFunc free_func) {
+  if(list == NULL){
+    return;
+  }
   Node *first = list->SENTINEL->next;
   while(first != list->SENTINEL){
     Node *next = first->next;
@@ -78,11 +83,9 @@ bool list_append(List *list, void *data){
   }
   newNode->data = data;
 
-  Node *currentLast = malloc(sizeof(Node));
-  if(currentLast == NULL){
-    return false;
-  }
-  currentLast = list->SENTINEL->prev;
+  Node *currentLast = list->SENTINEL->prev;
+  
+  newNode->prev = currentLast;
   currentLast->next = newNode;
   newNode->next = list->SENTINEL;
   list->SENTINEL->prev = newNode;
@@ -105,21 +108,16 @@ bool list_insert(List *list, size_t index, void *data){
   }
   newNode->data = data;
 
-  Node *current = malloc(sizeof(Node));
-  if(current == NULL){
-    return false;
-  }
-
-  current = list->SENTINEL->next;
+  Node *current = list->SENTINEL->next;
 
   if(index >= list->size){
+    free(newNode);
     return false;
-  }else{
-    for(size_t i = 0; i<index; i++){
-        current = current->next;
-      }
   }
-
+  for(size_t i = 0; i<index; i++){
+      current = current->next;
+    }
+  
   newNode->next = current;
   newNode->prev = current->prev;
   current->prev->next = newNode;
@@ -130,58 +128,48 @@ bool list_insert(List *list, size_t index, void *data){
 
 /**
  * Removes a specific node in a list based on index.
- * AI use: No AI
+ * AI use: Assisted by AI
  */
 void *list_remove(List *list, size_t index){
   if(list == NULL){
-    return false;
+    return NULL;
   }
-
-  Node *current = malloc(sizeof(Node));
-  if(current == NULL){
-    return false;
-  }
-
-  current = list->SENTINEL->next;
-
   if(index >= list->size){
     return NULL;
-  }else{
-    for(size_t i = 0; i<index; i++){
-        current = current->next;
-      }
   }
 
+  Node *current = list->SENTINEL->next;
+  for(size_t i = 0; i<index; i++){
+      current = current->next;
+    }
+  
+  void *data = current->data;
   current->next->prev = current->prev;
   current->prev->next = current->next;
+  free(current);
   list->size--;
-  return current;
+  return data;
 }
 
 /**
  * Gets a specific node in the list based on index.
- * AI use: No AI
+ * AI use: Assisted by AI
  */
 void *list_get(const List *list, size_t index){
   if(list == NULL){
-    return false;
+    return NULL;
   }
-
-  Node *current = malloc(sizeof(Node));
-  if(current == NULL){
-    return false;
-  }
-
-  current = list->SENTINEL->next;
-
   if(index >= list->size){
     return NULL;
-  }else{
-    for(size_t i = 0; i<index; i++){
-        current = current->next;
-      }
-      return current;
   }
+
+  Node *current = list->SENTINEL->next;
+
+  for(size_t i = 0; i<index; i++){
+      current = current->next;
+    }
+    Node *data = current->data;
+    return data;
 }
 
 /**
@@ -198,18 +186,13 @@ size_t list_size(const List *list){
 
 /**
  * Checks to see if the list is empty and returns true if it is.
- * AI use: No AI
+ * AI use: Assisted by AI
  */
 bool list_is_empty(const List *list){
   if(list == NULL){
     return false;
   }
-
-  if(list->size > 0){
-    return true;
-  }else{
-    return false;
-  }
+  return list->size == 0;
 }
 
 
