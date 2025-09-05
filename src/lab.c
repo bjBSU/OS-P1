@@ -28,15 +28,7 @@ struct List {
  */
 List *list_create(ListType type) {
     List *list = malloc(sizeof(List));
-    if (list == NULL) {
-        return NULL; // Memory allocation failed
-    }
-
     Node *sentinel = malloc(sizeof(Node));
-    if(sentinel == NULL) {
-        free(list);
-        return false; // Memory allocation failed
-    }
 
     sentinel->next = sentinel;
     sentinel->prev = sentinel;
@@ -51,17 +43,13 @@ List *list_create(ListType type) {
  * AI use: Assisted by AI
  */
 void list_destroy(List *list, FreeFunc free_func) {
-  if(list == NULL){
-    return;
-  }
   Node *first = list->SENTINEL->next;
   while(first != list->SENTINEL){
     Node *next = first->next;
     if(free_func != NULL && first->data != NULL){
       free_func(first->data);
+      free(first);
     }
-  
-    free(first);
     first = next;
   }
   free(list->SENTINEL);
@@ -78,9 +66,6 @@ bool list_append(List *list, void *data){
     return false;
   }
   Node *newNode = malloc(sizeof(Node));
-  if(newNode == NULL){
-    return false;
-  }
   newNode->data = data;
 
   Node *currentLast = list->SENTINEL->prev;
@@ -103,9 +88,6 @@ bool list_insert(List *list, size_t index, void *data){
     return false;
   }
   Node *newNode = malloc(sizeof(Node));
-  if(newNode == NULL){
-    return false;
-  }
   newNode->data = data;
 
   Node *current = list->SENTINEL->next;
@@ -132,7 +114,7 @@ bool list_insert(List *list, size_t index, void *data){
  */
 void *list_remove(List *list, size_t index){
   if(list == NULL){
-    return NULL;
+    return false;
   }
   if(index >= list->size){
     return NULL;
@@ -143,9 +125,9 @@ void *list_remove(List *list, size_t index){
       current = current->next;
     }
   
-  void *data = current->data;
   current->next->prev = current->prev;
   current->prev->next = current->next;
+  void *data = current->data;
   free(current);
   list->size--;
   return data;
@@ -168,8 +150,8 @@ void *list_get(const List *list, size_t index){
   for(size_t i = 0; i<index; i++){
       current = current->next;
     }
-    Node *data = current->data;
-    return data;
+    // Node *data = current->data;
+    return current->data;
 }
 
 /**
