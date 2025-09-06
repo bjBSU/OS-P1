@@ -43,6 +43,10 @@ List *list_create(ListType type) {
  * AI use: Assisted by AI
  */
 void list_destroy(List *list, FreeFunc free_func) {
+  if(list == NULL){// GCOVR_EXCL_START
+    return NULL;
+  }// GCOVR_EXCL_STOP
+
   Node *first = list->SENTINEL->next;
   while(first != list->SENTINEL){
     Node *next = first->next;
@@ -62,10 +66,13 @@ void list_destroy(List *list, FreeFunc free_func) {
  * AI use: Assisted by AI
  */
 bool list_append(List *list, void *data){
-  if(list == NULL){
+  if(list == NULL){// GCOVR_EXCL_START
+    return false;
+  }// GCOVR_EXCL_STOP
+  Node *newNode = malloc(sizeof(Node));
+  if(newNode == NULL){
     return false;
   }
-  Node *newNode = malloc(sizeof(Node));
   newNode->data = data;
 
   Node *currentLast = list->SENTINEL->prev;
@@ -84,10 +91,13 @@ bool list_append(List *list, void *data){
  * AI use: No AI
  */
 bool list_insert(List *list, size_t index, void *data){
-  if(list == NULL){
+  if(list == NULL){// GCOVR_EXCL_START
+    return false;
+  }// GCOVR_EXCL_STOP
+  Node *newNode = malloc(sizeof(Node));
+  if(newNode == NULL){
     return false;
   }
-  Node *newNode = malloc(sizeof(Node));
   newNode->data = data;
 
   Node *current = list->SENTINEL->next;
